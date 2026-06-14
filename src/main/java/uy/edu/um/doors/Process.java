@@ -2,8 +2,11 @@ package uy.edu.um.doors;
 
 import uy.edu.um.tad.list.MyLinkedListImpl;
 import uy.edu.um.tad.list.MyList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
-public class Process {
+public class Process implements Comparable<Process>{
 
     public enum ProcessState {
 
@@ -62,6 +65,21 @@ public class Process {
 
     public MyList<Event> getEvents() {
         return this.events;
+    }
+
+    @Override
+    public int compareTo(Process other) {
+        if (other == null) {
+            return 1;
+        }
+
+        int priorityComp = Integer.compare(this.priority, other.priority);
+
+        if (priorityComp != 0) {
+            return priorityComp;
+        }
+
+        return Integer.compare(this.pid, other.pid);
     }
 
     @Override
