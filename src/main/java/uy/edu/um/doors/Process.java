@@ -2,16 +2,15 @@ package uy.edu.um.doors;
 
 import uy.edu.um.tad.list.MyLinkedListImpl;
 import uy.edu.um.tad.list.MyList;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
-public class Process implements Comparable<Process>{
+public class Process implements Comparable<Process> {
 
     public enum ProcessState {
-
         NEW, PENDING, RUNNING, FINISHED
+    }
 
+    public enum FinishState {
+        OK, ERROR, TERMINATED
     }
 
     private int pid;
@@ -19,6 +18,7 @@ public class Process implements Comparable<Process>{
     private User user;
     private int priority;
     private ProcessState state;
+    private FinishState finishState;
     private MyList<Event> events;
 
     public Process(int pid, String name, User user) {
@@ -27,12 +27,12 @@ public class Process implements Comparable<Process>{
         this.user = user;
         this.priority = 0;
         this.state = ProcessState.NEW;
+        this.finishState = null;
         this.events = new MyLinkedListImpl<>();
     }
 
     public void addEvent(Event event) {
         this.events.add(event);
-
     }
 
     public int getPid() {
@@ -63,6 +63,14 @@ public class Process implements Comparable<Process>{
         this.state = state;
     }
 
+    public FinishState getFinishState() {
+        return this.finishState;
+    }
+
+    public void setFinishState(FinishState finishState) {
+        this.finishState = finishState;
+    }
+
     public MyList<Event> getEvents() {
         return this.events;
     }
@@ -84,7 +92,10 @@ public class Process implements Comparable<Process>{
 
     @Override
     public String toString() {
-        return "PID=" + pid + " " + name + " " + user.toString() + " " + priority;
+        return "PID=" + pid
+                + " " + name
+                + " | USER:" + user.getAlias()
+                + " UID:" + user.getUid()
+                + " | P=" + priority;
     }
-
 }
