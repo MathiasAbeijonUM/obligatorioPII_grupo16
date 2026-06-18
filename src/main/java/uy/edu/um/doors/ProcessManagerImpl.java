@@ -31,7 +31,7 @@ public class ProcessManagerImpl implements ProcessManager {
     private Process runningProcess;
 
     // Últimos procesos finalizados que siguen cargados en memoria.
-    private MyStack<Process> finishedProcesses;
+    private MyStackImpl<Process> finishedProcesses;
 
     // Datos cargados desde los CSV.
     private MyList<User> users;
@@ -431,7 +431,29 @@ public class ProcessManagerImpl implements ProcessManager {
 
     @Override
     public void printStatus() {
-        System.out.println("IMPLEMENTAR");
+        System.out.println("PROCESS STATUS");
+
+        System.out.println("EXECUTING:");
+        if (runningProcess != null) {
+            System.out.println("\t" + runningProcess.toString());
+        }
+
+        System.out.println("PENDING:");
+        for (int i = 0; i < allProcesses.size(); i++) {
+            Process p = allProcesses.get(i);
+            if (p.getState() == Process.ProcessState.PENDING) {
+                System.out.println("\t" + p.toString());
+            }
+        }
+
+        System.out.println("FINISHED:");
+        for (int i = finishedProcesses.size() - 1; i >= 0; i--) {
+            Process p = finishedProcesses.get(i);
+            System.out.println("\tPID=" + p.getPid() + " " + p.getName()
+                    + " | STATE: " + p.getFinishState()
+                    + " | USER:" + p.getUser().getAlias()
+                    + " UID:" + p.getUser().getUid());
+        }
     }
 
     @Override
