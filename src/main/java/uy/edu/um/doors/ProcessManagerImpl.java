@@ -390,9 +390,24 @@ public class ProcessManagerImpl implements ProcessManager {
 
     @Override
     public void finishProcessError() {
-        System.out.println("IMPLEMENTAR");
-    }
+        if (runningProcess == null) {
+            System.out.println("No hay proceso en ejecución para finalizar");
+            return;
+        }
 
+        runningProcess.setState(Process.ProcessState.FINISHED);
+        runningProcess.setFinishState(Process.FinishState.ERROR);
+
+        System.out.println(
+                "[" + getCurrentTimestamp() + "]: ENDING PROCESS: PID=" + runningProcess.getPid()
+                        + " | STATE: ERROR"
+        );
+
+        pushFinishedProcessBasic(runningProcess);
+
+        runningProcess = null;
+    }
+    
     @Override
     public void terminateProcess(int uid) {
         System.out.println("IMPLEMENTAR");
