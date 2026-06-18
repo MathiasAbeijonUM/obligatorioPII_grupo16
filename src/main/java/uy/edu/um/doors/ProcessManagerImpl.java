@@ -381,13 +381,6 @@ public class ProcessManagerImpl implements ProcessManager {
         return LocalDateTime.now().format(formatter);
     }
 
-
-
-
-
-
-
-
     @Override
     public void finishProcessError() {
         if (runningProcess == null) {
@@ -407,10 +400,33 @@ public class ProcessManagerImpl implements ProcessManager {
 
         runningProcess = null;
     }
-    
+
     @Override
     public void terminateProcess(int uid) {
-        System.out.println("IMPLEMENTAR");
+        if (runningProcess == null) {
+            System.out.println("No hay proceso en ejecución para finalizar");
+            return;
+        }
+
+        User terminatingUser = findUserByUid(uid);
+
+        if (terminatingUser == null) {
+            System.out.println("No existe usuario con UID: " + uid);
+            return;
+        }
+
+        runningProcess.setState(Process.ProcessState.FINISHED);
+        runningProcess.setFinishState(Process.FinishState.TERMINATED);
+
+        System.out.println(
+                "[" + getCurrentTimestamp() + "]: ENDING PROCESS: PID=" + runningProcess.getPid()
+                        + " | STATE: TERMINATED by USER:" + terminatingUser.getAlias()
+                        + " UID:" + terminatingUser.getUid()
+        );
+
+        pushFinishedProcessBasic(runningProcess);
+
+        runningProcess = null;
     }
 
     @Override
