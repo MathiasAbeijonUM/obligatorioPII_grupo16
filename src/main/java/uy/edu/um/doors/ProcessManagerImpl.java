@@ -37,7 +37,7 @@ public class ProcessManagerImpl implements ProcessManager {
 
     // Datos cargados desde los CSV.
     private MyHash<Integer, User> users;
-    private MyList<Process> allProcesses;
+    private MyHash<Integer, Process> allProcesses;
 
     public ProcessManagerImpl() {
         reset();
@@ -122,7 +122,7 @@ public class ProcessManagerImpl implements ProcessManager {
             loadEventsIntoProcess(process, eventsRaw);
 
             newProcesses.enqueue(process);
-            allProcesses.add(process);
+            allProcesses.put(pid, process);
         }
 
         reader.close();
@@ -446,8 +446,9 @@ public class ProcessManagerImpl implements ProcessManager {
         }
 
         System.out.println("PENDING:");
-        for (int i = 0; i < allProcesses.size(); i++) {
-            Process p = allProcesses.get(i);
+        MyList<Process> allProcessesList = allProcesses.values();
+        for (int i = 0; i < allProcessesList.size(); i++) {
+            Process p = allProcessesList.get(i);
             if (p.getState() == Process.ProcessState.PENDING) {
                 System.out.println("\t" + p.toString());
             }
@@ -473,8 +474,9 @@ public class ProcessManagerImpl implements ProcessManager {
         }
 
         System.out.println("PENDING:");
-        for (int i = 0; i < allProcesses.size(); i++) {
-            Process process = allProcesses.get(i);
+        MyList<Process> allProcessesList = allProcesses.values();
+        for (int i = 0; i < allProcessesList.size(); i++) {
+            Process process = allProcessesList.get(i);
 
             if (process.getState() == Process.ProcessState.PENDING) {
                 printProcessVerbose(process);
@@ -502,8 +504,9 @@ public class ProcessManagerImpl implements ProcessManager {
 
         boolean found = false;
 
-        for (int i = 0; i < allProcesses.size(); i++) {
-            Process process = allProcesses.get(i);
+        MyList<Process> allProcessesList = allProcesses.values();
+        for (int i = 0; i < allProcessesList.size(); i++) {
+            Process process = allProcessesList.get(i);
 
             if (process.getUser().getUid() == uid && isProcessLoadedInMemory(process)) {
                 printProcessBasic(process);
@@ -530,15 +533,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     private Process findProcessByPid(int pid) {
-        for (int i = 0; i < allProcesses.size(); i++) {
-            Process process = allProcesses.get(i);
-
-            if (process.getPid() == pid) {
-                return process;
-            }
-        }
-
-        return null;
+        return allProcesses.get(pid);
     }
 
     private boolean isProcessLoadedInMemory(Process process) {
@@ -591,6 +586,5 @@ public class ProcessManagerImpl implements ProcessManager {
         this.runningProcess = null;
         this.finishedProcesses = new MyStackImpl<>();
         this.users = new MyHashImpl<>();
-        this.allProcesses = new MyLinkedListImpl<>();
-    }
+        this.allProcesses = new MyHashImpl<>();    }
 }
