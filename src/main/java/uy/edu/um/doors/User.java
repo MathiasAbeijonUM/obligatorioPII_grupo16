@@ -31,7 +31,7 @@ public class User {
 
     @Override
     public String toString(){
-        return "USER:" + alias + "UID:" + uid;
+        return "USER:" + alias + " UID:" + uid;
     }
 
 }
