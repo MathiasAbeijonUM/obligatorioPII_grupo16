@@ -458,17 +458,124 @@ public class ProcessManagerImpl implements ProcessManager {
 
     @Override
     public void printStatusVerbose() {
-        System.out.println("IMPLEMENTAR");
+        System.out.println("PROCESS STATUS VERBOSE");
+
+        System.out.println("EXECUTING:");
+        if (runningProcess != null) {
+            printProcessVerbose(runningProcess);
+        }
+
+        System.out.println("PENDING:");
+        for (int i = 0; i < allProcesses.size(); i++) {
+            Process process = allProcesses.get(i);
+
+            if (process.getState() == Process.ProcessState.PENDING) {
+                printProcessVerbose(process);
+            }
+        }
+
+        System.out.println("FINISHED:");
+        for (int i = finishedProcesses.size() - 1; i >= 0; i--) {
+            Process process = finishedProcesses.get(i);
+            printProcessVerbose(process);
+        }
     }
 
     @Override
     public void printStatusByUser(int uid) {
-        System.out.println("IMPLEMENTAR");
+        User user = findUserByUid(uid);
+
+        if (user == null) {
+            System.out.println("No existe usuario con UID: " + uid);
+            return;
+        }
+
+        System.out.println("PROCESS STATUS BY USER");
+        System.out.println("USER:" + user.getAlias() + " UID:" + user.getUid());
+
+        boolean found = false;
+
+        for (int i = 0; i < allProcesses.size(); i++) {
+            Process process = allProcesses.get(i);
+
+            if (process.getUser().getUid() == uid && isProcessLoadedInMemory(process)) {
+                printProcessBasic(process);
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("No hay procesos cargados en memoria para el usuario indicado");
+        }
     }
 
     @Override
     public void printStatusByProcess(int pid) {
-        System.out.println("IMPLEMENTAR");
+        Process process = findProcessByPid(pid);
+
+        if (process == null || !isProcessLoadedInMemory(process)) {
+            System.out.println("No existe proceso cargado en memoria con PID: " + pid);
+            return;
+        }
+
+        System.out.println("PROCESS STATUS BY PID");
+        printProcessVerbose(process);
+    }
+
+    private Process findProcessByPid(int pid) {
+        for (int i = 0; i < allProcesses.size(); i++) {
+            Process process = allProcesses.get(i);
+
+            if (process.getPid() == pid) {
+                return process;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isProcessLoadedInMemory(Process process) {
+        if (process.getState() == Process.ProcessState.FINISHED) {
+            return isFinishedProcessInRam(process);
+        }
+
+        return true;
+    }
+
+    private boolean isFinishedProcessInRam(Process process) {
+        for (int i = 0; i < finishedProcesses.size(); i++) {
+            Process finished = finishedProcesses.get(i);
+
+            if (finished.getPid() == process.getPid()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void printProcessBasic(Process process) {
+        System.out.println("\tPID=" + process.getPid()
+                + " " + process.getName()
+                + " | STATE: " + process.getState()
+                + " | USER:" + process.getUser().getAlias()
+                + " UID:" + process.getUser().getUid()
+                + " | P=" + process.getPriority());
+
+        if (process.getFinishState() != null) {
+            System.out.println("\tFINISH STATE: " + process.getFinishState());
+        }
+    }
+
+    private void printProcessVerbose(Process process) {
+        printProcessBasic(process);
+
+        for (int i = 0; i < process.getEvents().size(); i++) {
+            Event event = process.getEvents().get(i);
+
+            System.out.println("\tEVENT: " + event.getType()
+                    + " | Instructions " + instructionsToString(event));
+        }
     }
 
     private void reset() {
