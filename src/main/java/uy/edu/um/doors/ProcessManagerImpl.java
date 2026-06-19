@@ -10,6 +10,8 @@ import uy.edu.um.tad.queue.MyQueue;
 import uy.edu.um.tad.queue.MyQueueImpl;
 import uy.edu.um.tad.stack.MyStack;
 import uy.edu.um.tad.stack.MyStackImpl;
+import uy.edu.um.tad.hash.MyHash;
+import uy.edu.um.tad.hash.MyHashImpl;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -34,7 +36,7 @@ public class ProcessManagerImpl implements ProcessManager {
     private MyStackImpl<Process> finishedProcesses;
 
     // Datos cargados desde los CSV.
-    private MyList<User> users;
+    private MyHash<Integer, User> users;
     private MyList<Process> allProcesses;
 
     public ProcessManagerImpl() {
@@ -80,7 +82,7 @@ public class ProcessManagerImpl implements ProcessManager {
 
             User user = new User(uid, alias, type);
 
-            users.add(user);
+            users.put(uid, user);
         }
 
         reader.close();
@@ -176,15 +178,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     private User findUserByUid(int uid) {
-        for (int i = 0; i < users.size(); i++) {
-            User user = users.get(i);
-
-            if (user.getUid() == uid) {
-                return user;
-            }
-        }
-
-        return null;
+        return users.get(uid);
     }
 
 
@@ -596,7 +590,7 @@ public class ProcessManagerImpl implements ProcessManager {
         this.pendingProcesses = new MyHeapImpl<>(false);
         this.runningProcess = null;
         this.finishedProcesses = new MyStackImpl<>();
-        this.users = new MyLinkedListImpl<>();
+        this.users = new MyHashImpl<>();
         this.allProcesses = new MyLinkedListImpl<>();
     }
 }
