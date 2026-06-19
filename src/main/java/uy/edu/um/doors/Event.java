@@ -6,9 +6,7 @@ import uy.edu.um.tad.list.MyList;
 public class Event {
 
     public enum EventType {
-
         CPU, RAM, DISK
-
     }
 
     private EventType type;

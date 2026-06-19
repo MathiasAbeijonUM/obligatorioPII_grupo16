@@ -82,7 +82,6 @@ public class Process implements Comparable<Process> {
         }
 
         int priorityComp = Integer.compare(this.priority, other.priority);
-
         if (priorityComp != 0) {
             return priorityComp;
         }

@@ -23,19 +23,19 @@ public class ProcessManagerImpl implements ProcessManager {
 
     // EL DISEÑO DE LA ESTRUCTURA DE ALMACENAMIENTO DEBE IMPLEMENTARSE EN ESTA CLASE EN RELACIÓN CON LAS ENTIDADES QUE DEFINA
 
-    // Procesos que fueron cargados, pero todavía no fueron preparados.
+    // Procesos que fueron cargados, pero todavia no fueron preparados.
     private MyQueue<Process> newProcesses;
 
-    // Procesos ya preparados. Después se usa para ejecutar el de mayor prioridad.
+    // Procesos ya preparados
     private MyHeap<Process> pendingProcesses;
 
-    // Único proceso que puede estar ejecutándose, porque Doors es monotarea.
+    // Unico proceso que puede estar ejecutandose
     private Process runningProcess;
 
-    // Últimos procesos finalizados que siguen cargados en memoria.
+    // Ultimos procesos finalizados que siguen cargados en memoria
     private MyStackImpl<Process> finishedProcesses;
 
-    // Datos cargados desde los CSV.
+    // Datos cargados desde los CSV
     private MyHash<Integer, User> users;
     private MyHash<Integer, Process> allProcesses;
 
@@ -70,6 +70,7 @@ public class ProcessManagerImpl implements ProcessManager {
         // Lee el resto de las lineas del archivo
         while ((line = reader.readLine()) != null) {
 
+            //Ignora lineas vacias
             if (line.trim().isEmpty()) {
                 continue;
             }
@@ -211,6 +212,7 @@ public class ProcessManagerImpl implements ProcessManager {
         int ramCount = 0;
         int diskCount = 0;
 
+        // Recorre todos los eventos y cuenta cuantos son cpu, ram y disk
         for (int i = 0; i < process.getEvents().size(); i++) {
             Event event = process.getEvents().get(i);
 
@@ -261,7 +263,7 @@ public class ProcessManagerImpl implements ProcessManager {
     @Override
     public void executeNextProcess() {
         if (runningProcess != null) {
-            System.out.println("Ya hay un proceso en ejecución: PID=" + runningProcess.getPid());
+            System.out.println("Ya hay un proceso en ejecucion: PID=" + runningProcess.getPid());
             return;
         }
 
@@ -276,7 +278,7 @@ public class ProcessManagerImpl implements ProcessManager {
             process.setState(Process.ProcessState.RUNNING);
             runningProcess = process;
 
-            logExecutingProcess(process);
+            logExecutingProcess(process); // Muestra en pantalla que paso de new a pending
 
         } catch (EmptyHeapException e) {
             System.out.println("No hay procesos pendientes para ejecutar");
@@ -307,7 +309,7 @@ public class ProcessManagerImpl implements ProcessManager {
     @Override
     public void finishProcessOk() {
         if (runningProcess == null) {
-            System.out.println("No hay proceso en ejecución para finalizar");
+            System.out.println("No hay proceso en ejecucion para finalizar");
             return;
         }
 
@@ -391,7 +393,7 @@ public class ProcessManagerImpl implements ProcessManager {
     @Override
     public void finishProcessError() {
         if (runningProcess == null) {
-            System.out.println("No hay proceso en ejecución para finalizar");
+            System.out.println("No hay proceso en ejecucion para finalizar");
             return;
         }
 
@@ -411,7 +413,7 @@ public class ProcessManagerImpl implements ProcessManager {
     @Override
     public void terminateProcess(int uid) {
         if (runningProcess == null) {
-            System.out.println("No hay proceso en ejecución para finalizar");
+            System.out.println("No hay proceso en ejecucion para finalizar");
             return;
         }
 
