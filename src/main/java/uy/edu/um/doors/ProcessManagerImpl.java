@@ -250,7 +250,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     private void logNewPendingProcess(Process process) {
-        System.out.println(
+        writeToLogFile(
                 "[" + getCurrentTimestamp() + "]: NEW PENDING PROCESS: PID=" + process.getPid()
                         + " | " + process.getName()
                         + " | USER:" + process.getUser().getAlias()
@@ -290,7 +290,7 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     private void logExecutingProcess(Process process) {
-        System.out.println(
+        writeToLogFile(
                 "[" + getCurrentTimestamp() + "]: EXECUTING PROCESS: PID=" + process.getPid()
                         + " | USER:" + process.getUser().getAlias()
                         + " UID:" + process.getUser().getUid()
@@ -299,13 +299,12 @@ public class ProcessManagerImpl implements ProcessManager {
         for (int i = 0; i < process.getEvents().size(); i++) {
             Event event = process.getEvents().get(i);
 
-            System.out.println(
+            writeToLogFile(
                     "EVENT: " + event.getType()
                             + " | Instructions " + instructionsToString(event)
             );
         }
     }
-
 
 
 
@@ -328,8 +327,9 @@ public class ProcessManagerImpl implements ProcessManager {
         runningProcess = null;
     }
 
+
     private void logEndingProcessOk(Process process) {
-        System.out.println(
+        writeToLogFile(
                 "[" + getCurrentTimestamp() + "]: ENDING PROCESS: PID=" + process.getPid()
                         + " | STATE: OK"
         );
@@ -337,13 +337,13 @@ public class ProcessManagerImpl implements ProcessManager {
 
     private void pushFinishedProcessBasic(Process process) {
         if (finishedProcesses.size() == MAX_FINISHED_PROCESS_ON_RAM) {
-            System.out.println("Finished process stack overflow");
+            writeToLogFile("Finished process stack overflow");
 
             while (!finishedProcesses.isEmpty()) {
                 try {
                     Process finished = finishedProcesses.pop();
 
-                    System.out.println(
+                    writeToLogFile(
                             "PID=" + finished.getPid()
                                     + " " + finished.getName()
                                     + " | STATE: " + finished.getFinishState()
@@ -381,6 +381,19 @@ public class ProcessManagerImpl implements ProcessManager {
         return LocalDateTime.now().format(formatter);
     }
 
+    private void writeToLogFile(String message) {
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        String fileName = "DOORS_PROCESS_LOG_" + date;
+
+        try {
+            java.io.FileWriter writer = new java.io.FileWriter(fileName, true);
+            writer.write(message + System.lineSeparator());
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Error escribiendo en el log: " + e.getMessage());
+        }
+    }
+
     @Override
     public void finishProcessError() {
         if (runningProcess == null) {
@@ -391,7 +404,7 @@ public class ProcessManagerImpl implements ProcessManager {
         runningProcess.setState(Process.ProcessState.FINISHED);
         runningProcess.setFinishState(Process.FinishState.ERROR);
 
-        System.out.println(
+        writeToLogFile(
                 "[" + getCurrentTimestamp() + "]: ENDING PROCESS: PID=" + runningProcess.getPid()
                         + " | STATE: ERROR"
         );
@@ -418,7 +431,7 @@ public class ProcessManagerImpl implements ProcessManager {
         runningProcess.setState(Process.ProcessState.FINISHED);
         runningProcess.setFinishState(Process.FinishState.TERMINATED);
 
-        System.out.println(
+        writeToLogFile(
                 "[" + getCurrentTimestamp() + "]: ENDING PROCESS: PID=" + runningProcess.getPid()
                         + " | STATE: TERMINATED by USER:" + terminatingUser.getAlias()
                         + " UID:" + terminatingUser.getUid()
